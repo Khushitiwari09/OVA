@@ -66,6 +66,20 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="bloodTracker"
+        options={{
+          href: null,
+          title: "Blood Tracker",
+        }}
+      />
+      <Tabs.Screen
+        name="dietician"
+        options={{
+          href: null,
+          title: "Dietician",
+        }}
+      />
+      <Tabs.Screen
         name="explore"
         options={{
           title: "Explore",

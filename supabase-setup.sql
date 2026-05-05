@@ -72,4 +72,22 @@ CREATE POLICY "Users can manage own mood logs"
   ON mood_logs FOR ALL
   USING (auth.uid() = user_id);
 
+-- 4. Blood Logs (period blood tracking)
+CREATE TABLE IF NOT EXISTS blood_logs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  log_date DATE NOT NULL DEFAULT CURRENT_DATE,
+  color TEXT NOT NULL,        -- bright_red | dark_red | brown | pink
+  flow TEXT NOT NULL,         -- light | medium | heavy
+  clots BOOLEAN DEFAULT false,
+  insight TEXT,               -- cached AI-generated insight
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE blood_logs ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can manage own blood logs"
+  ON blood_logs FOR ALL
+  USING (auth.uid() = user_id);
+
 -- Done! All tables are ready with Row Level Security.

@@ -6,11 +6,19 @@ import {
   useFonts,
 } from "@expo-google-fonts/poppins";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useMemo } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
+import { CycleCarousel } from "@/components/dashboard/CycleCarousel";
+import {
+  FlowerSticker,
+  HeartSticker,
+  DropSticker,
+  SparkleSticker,
+  MoonSticker,
+  ButterflySticker,
+} from "@/components/dashboard/CuteStickers";
 import { PastelCard } from "@/components/dashboard/pastel-card";
 import { OvaBackground } from "@/components/shared/OvaBackground";
 import { OvaDivider } from "@/components/shared/OvaDivider";
@@ -18,8 +26,6 @@ import { OvaMicrocopy } from "@/components/shared/OvaMicrocopy";
 import {
   OvumIcon,
   HeartCurveIcon,
-  CycleLoopIcon,
-  PetalIcon,
 } from "@/components/icons/OvaIcons";
 import { getDailyAffirmation } from "@/constants/affirmations";
 import { useAuth } from "@/context/AuthContext";
@@ -49,11 +55,18 @@ const FEATURE_CARDS = [
     route: "/(tabs)/moodTracker",
   },
   {
-    title: "Body Signals",
-    subtitle: "Symptoms, flow, and notes",
-    icon: "self-improvement",
-    backgroundColor: "#E9EEF3",
-    route: "/(tabs)/cycleTracker",
+    title: "Your Blood Tracker",
+    subtitle: "Understand your cycle better",
+    icon: "water-drop",
+    backgroundColor: "#F5E3EA",
+    route: "/(tabs)/bloodTracker",
+  },
+  {
+    title: "Your Dietician",
+    subtitle: "Personalized diet & exercise",
+    icon: "restaurant",
+    backgroundColor: "#E3F0E9",
+    route: "/(tabs)/dietician",
   },
 ];
 
@@ -125,6 +138,31 @@ export default function Dashboard() {
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
       >
+        {/* ── Floating decorative stickers ── */}
+        <View style={styles.stickerLayer} pointerEvents="none">
+          <View style={{ position: "absolute", right: 12, top: 110 }}>
+            <FlowerSticker size={30} color="#E8889A" opacity={0.10} />
+          </View>
+          <View style={{ position: "absolute", left: 8, top: 280 }}>
+            <HeartSticker size={22} color="#D4A0BC" opacity={0.08} />
+          </View>
+          <View style={{ position: "absolute", right: 30, top: 520 }}>
+            <ButterflySticker size={28} color="#B8A0C4" opacity={0.07} />
+          </View>
+          <View style={{ position: "absolute", left: 20, top: 680 }}>
+            <SparkleSticker size={18} color="#C9929B" opacity={0.09} />
+          </View>
+          <View style={{ position: "absolute", right: 10, top: 800 }}>
+            <MoonSticker size={24} color="#D4A89C" opacity={0.08} />
+          </View>
+          <View style={{ position: "absolute", left: 40, top: 950 }}>
+            <DropSticker size={20} color="#E8889A" opacity={0.07} />
+          </View>
+          <View style={{ position: "absolute", right: 50, top: 1100 }}>
+            <FlowerSticker size={24} color="#B8A0C4" opacity={0.06} />
+          </View>
+        </View>
+
         {/* Top bar with logout */}
         <View style={styles.topBar}>
           <View style={styles.brandMark}>
@@ -148,54 +186,12 @@ export default function Dashboard() {
             Hi {safeName}, take care of yourself today
           </Text>
 
-          {/* Cycle summary card */}
-          <LinearGradient
-            colors={["#E8CFDB", "#DACBE9", "#EEDBCB"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.featuredCard}
-          >
-            <View style={styles.featuredHeaderRow}>
-              <View style={styles.featuredLabelRow}>
-                <CycleLoopIcon size={16} color="#705F68" />
-                <Text style={styles.featuredLabel}>Cycle Summary</Text>
-              </View>
-              {cycleInfo?.phase && (
-                <View
-                  style={[
-                    styles.phaseBadge,
-                    { backgroundColor: cycleInfo.phase.color },
-                  ]}
-                >
-                  <Text style={styles.phaseBadgeText}>
-                    {cycleInfo.phase.name.replace(" Phase", "")}
-                  </Text>
-                </View>
-              )}
-            </View>
-
-            <Text style={styles.featuredTitle}>
-              Day {cycleInfo?.cycleDay || 1} • Cycle Tracking
-            </Text>
-            <Text style={styles.featuredSubtitle}>
-              {cycleInfo?.phase?.description?.substring(0, 80)}...
-            </Text>
-
-            <View style={styles.statsRow}>
-              <View style={styles.statPill}>
-                <Text style={styles.statLabel}>Cycle Length</Text>
-                <Text style={styles.statValue}>
-                  {cycleInfo?.cycleLength || 28} Days
-                </Text>
-              </View>
-              <View style={styles.statPill}>
-                <Text style={styles.statLabel}>Next Period</Text>
-                <Text style={styles.statValue}>
-                  {cycleInfo?.nextPeriod || "—"}
-                </Text>
-              </View>
-            </View>
-          </LinearGradient>
+          {/* ✨ Stacked cycle cards — tap or drag to peel */}
+          <View style={styles.carouselHint}>
+            <MaterialIcons name="touch-app" size={14} color="#B8A0B0" />
+            <Text style={styles.carouselHintText}>Tap to peel through</Text>
+          </View>
+          <CycleCarousel cycleInfo={cycleInfo} />
         </View>
 
         {/* Daily Affirmation */}
@@ -294,10 +290,22 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
     gap: 20,
   },
+
+  // Floating sticker layer
+  stickerLayer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 0,
+  },
+
   topBar: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    zIndex: 1,
   },
   brandMark: {
     flexDirection: "row",
@@ -319,7 +327,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   topSection: {
-    gap: 16,
+    gap: 12,
+    zIndex: 1,
   },
   greetingOverline: {
     fontFamily: "Poppins_500Medium",
@@ -333,75 +342,20 @@ const styles = StyleSheet.create({
     lineHeight: 34,
     color: "#5B4B54",
   },
-  featuredCard: {
-    borderRadius: 28,
-    padding: 24,
-    gap: 10,
-    shadowColor: "#8C748A",
-    shadowOffset: { width: 0, height: 16 },
-    shadowOpacity: 0.14,
-    shadowRadius: 28,
-    elevation: 9,
-  },
-  featuredHeaderRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  featuredLabelRow: {
+
+  // Carousel hint
+  carouselHint: {
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
+    alignSelf: "flex-end",
+    marginBottom: -4,
   },
-  featuredLabel: {
-    fontFamily: "Poppins_500Medium",
-    fontSize: 13,
-    color: "#705F68",
-  },
-  phaseBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  phaseBadgeText: {
-    fontFamily: "Poppins_600SemiBold",
+  carouselHintText: {
+    fontFamily: "Poppins_400Regular",
     fontSize: 11,
-    color: "#FFFFFF",
-  },
-  featuredTitle: {
-    fontFamily: "Poppins_600SemiBold",
-    fontSize: 22,
-    lineHeight: 30,
-    color: "#4B3D45",
-  },
-  featuredSubtitle: {
-    fontFamily: "Poppins_400Regular",
-    fontSize: 14,
-    lineHeight: 22,
-    color: "#6D5C65",
-  },
-  statsRow: {
-    marginTop: 10,
-    flexDirection: "row",
-    gap: 12,
-  },
-  statPill: {
-    flex: 1,
-    borderRadius: 18,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    backgroundColor: "rgba(255, 255, 255, 0.42)",
-  },
-  statLabel: {
-    fontFamily: "Poppins_400Regular",
-    fontSize: 12,
-    color: "#7A6973",
-    marginBottom: 2,
-  },
-  statValue: {
-    fontFamily: "Poppins_600SemiBold",
-    fontSize: 14,
-    color: "#564751",
+    color: "#B8A0B0",
+    letterSpacing: 0.2,
   },
 
   // Affirmation
@@ -414,6 +368,7 @@ const styles = StyleSheet.create({
     padding: 20,
     borderWidth: 1,
     borderColor: "rgba(212,160,188,0.15)",
+    zIndex: 1,
   },
   affirmationIcon: {
     width: 38,
@@ -440,6 +395,7 @@ const styles = StyleSheet.create({
 
   middleSection: {
     gap: 14,
+    zIndex: 1,
   },
   sectionTitle: {
     fontFamily: "Poppins_600SemiBold",
@@ -452,6 +408,7 @@ const styles = StyleSheet.create({
   },
   bottomSection: {
     gap: 14,
+    zIndex: 1,
   },
   grid: {
     flexDirection: "row",
